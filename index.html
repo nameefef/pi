@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>树莓派 OS 使用教程大全（从零开始）</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #f0f2f5;
+            --sidebar-bg: #1e1e1e;
+            --sidebar-text: #ccc;
+            --sidebar-link: #e88;
+            --card-bg: #fff;
+            --text: #333;
+            --heading: #c43a31;
+            --border: #e0e0e0;
+            --code-bg: #f5f5f5;
+            --pre-bg: #1e1e1e;
+        }
+        body.dark {
+            --bg: #121212;
+            --sidebar-bg: #1a1a1a;
+            --sidebar-text: #aaa;
+            --sidebar-link: #ff8a8a;
+            --card-bg: #1e1e1e;
+            --text: #ddd;
+            --heading: #ff6b6b;
+            --border: #333;
+            --code-bg: #2a2a2a;
+            --pre-bg: #0d0d0d;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            font-size: 16px;
+            transition: background .3s, color .3s;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ========== 左侧导航 ========== */
+        .sidebar {
+            width: 260px;
+            min-width: 260px;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            transition: background .3s;
+            z-index: 10;
+        }
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .sidebar-logo img {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+        }
+        .sidebar-logo h2 {
+            font-size: 1em;
+            color: #eee;
+            line-height: 1.3;
+        }
+        .sidebar-logo h2 small {
+            font-weight: normal;
+            font-size: 0.75em;
+            color: #999;
+        }
+
+        /* 深色模式开关 */
+        .dark-toggle-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0 14px;
+            padding: 8px 10px;
+            background: rgba(255,255,255,.06);
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+        .dark-toggle-wrap span { font-size: 0.9em; }
+        .toggle-track {
+            width: 44px;
+            height: 24px;
+            background: #555;
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            transition: background .3s;
+        }
+        .toggle-track .knob {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: left .3s;
+        }
+        body.dark .toggle-track { background: #c43a31; }
+        body.dark .toggle-track .knob { left: 22px; }
+
+        .sidebar nav {}
+        .sidebar nav .nav-title {
+            font-size: 0.8em;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 12px 0 6px;
+        }
+        .sidebar nav a {
+            display: block;
+            color: var(--sidebar-link);
+            text-decoration: none;
+            font-size: 0.85em;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background .2s;
+        }
+        .sidebar nav a:hover {
+            background: rgba(255,255,255,.08);
+            text-decoration: none;
+        }
+        .sidebar nav .chap-num {
+            display: inline-block;
+            width: 22px;
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        /* ========== 右侧内容 ========== */
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 30px 30px 60px;
+            max-width: 960px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #c43a31, #a52a22);
+            color: #fff;
+            padding: 36px 30px;
+            border-radius: 14px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .header img {
+            width: 64px;
+            height: 64px;
+            flex-shrink: 0;
+        }
+        .header h1 { font-size: 1.9em; margin-bottom: 4px; }
+        .header p { font-size: 1em; opacity: .85; }
+        body.dark .header { background: linear-gradient(135deg, #b22, #8a1a1a); }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background .3s, box-shadow .3s;
+        }
+        body.dark .section {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+        .section h2 {
+            color: var(--heading);
+            font-size: 1.5em;
+            border-left: 5px solid var(--heading);
+            padding-left: 15px;
+            margin-bottom: 20px;
+            transition: color .3s;
+        }
+        .section h3 {
+            color: var(--text);
+            font-size: 1.15em;
+            margin: 18px 0 8px;
+            opacity: .85;
+        }
+        .section p { margin: 10px 0; }
+        .section ul, .section ol { padding-left: 25px; margin: 10px 0; }
+        .section li { margin: 6px 0; }
+
+        .tip {
+            background: #e8f4fd;
+            border-left: 4px solid #2196F3;
+            padding: 12px 18px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        body.dark .tip {
+            background: #0d2a3a;
+            border-left-color: #4fc3f7;
+        }
+        .warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 12px 18px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        body.dark .warning {
+            background: #2a1f0d;
+            border-left-color: #ffb74d;
+        }
+        .danger {
+            background: #fdecea;
+            border-left: 4px solid #f44336;
+            padding: 12px 18px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        body.dark .danger {
+            background: #2a0d0d;
+            border-left-color: #ef5350;
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: "Courier New", monospace;
+            font-size: 0.9em;
+            color: var(--heading);
+            transition: background .3s;
+        }
+        pre {
+            background: var(--pre-bg);
+            color: #d4d4d4;
+            padding: 15px 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            margin: 12px 0;
+            line-height: 1.5;
+        }
+        pre .cmd { color: #6bc96b; }
+        pre .out { color: #b5b5b5; }
+        pre .comment { color: #6a9955; }
+        pre .err { color: #f55; }
+
+        /* 拷贝按钮 */
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: rgba(255,255,255,.12);
+            color: #ccc;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 12px;
+            font-size: 0.78em;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+            font-family: inherit;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,.25); color:#fff; }
+        .copy-btn.copied { background: #4caf50; color:#fff; }
+        pre:hover .copy-btn { opacity: 1; }
+        pre .copy-btn { opacity: .6; }
+        pre { position: relative; }
+
+        .step-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 10px 0;
+            transition: background .3s, border-color .3s;
+        }
+        .step-box .step-num {
+            display: inline-block;
+            background: #c43a31;
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 0.85em;
+            margin-right: 8px;
+        }
+        body.dark .step-box .step-num { background: #b22; }
+
+        table {
+            width:100%;
+            border-collapse: collapse;
+            margin:15px 0;
+        }
+        table th {
+            background: #c43a31;
+            color: #fff;
+            padding:8px 12px;
+            border:1px solid var(--border);
+            text-align:left;
+        }
+        body.dark table th { background: #b22; }
+        table td {
+            padding:8px 12px;
+            border:1px solid var(--border);
+        }
+        table tr:nth-child(even) { background: rgba(0,0,0,.03); }
+        body.dark table tr:nth-child(even) { background: rgba(255,255,255,.03); }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        /* ========== 滚动条美化 ========== */
+        .sidebar::-webkit-scrollbar { width: 5px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                height: auto;
+                position: relative;
+                padding: 14px 16px;
+                max-height: 260px;
+                overflow-y: auto;
+            }
+            .sidebar nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+            .sidebar nav a {
+                display: inline-block;
+                font-size: 0.78em;
+                padding: 2px 6px;
+            }
+            .sidebar nav .nav-title { display: none; }
+            .sidebar nav .chap-num { display: none; }
+            .main { padding: 16px; }
+            .section { padding: 18px 16px; }
+            .header { flex-wrap: wrap; padding: 20px; }
+            .header h1 { font-size: 1.4em; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 左侧导航 ========== -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <img src="data:image/png;base64,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" alt="树莓派 logo">
+        <h2>树莓派教程<small>Raspberry Pi</small></h2>
+    </div>
+
+    <div class="dark-toggle-wrap">
+        <span>🌙 深色模式</span>
+        <div class="toggle-track" onclick="toggleDark()">
+            <div class="knob"></div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-title">目录</div>
+        <a href="#s1"><span class="chap-num">1</span>什么是树莓派？</a>
+        <a href="#s2"><span class="chap-num">2</span>需要准备什么</a>
+        <a href="#s3"><span class="chap-num">3</span>烧录系统</a>
+        <a href="#s4"><span class="chap-num">4</span>第一次开机</a>
+        <a href="#s5"><span class="chap-num">5</span>桌面介绍</a>
+        <a href="#s6"><span class="chap-num">6</span>终端命令</a>
+        <a href="#s7"><span class="chap-num">7</span>安装卸载软件</a>
+        <a href="#s8"><span class="chap-num">8</span>WiFi 网络</a>
+        <a href="#s9"><span class="chap-num">9</span>SSH 远程连接</a>
+        <a href="#s10"><span class="chap-num">10</span>VNC 远程桌面</a>
+        <a href="#s11"><span class="chap-num">11</span>GPIO 引脚入门</a>
+        <a href="#s12"><span class="chap-num">12</span>文件系统</a>
+        <a href="#s13"><span class="chap-num">13</span>解压文件</a>
+        <a href="#s14"><span class="chap-num">14</span>运行 .sh 文件</a>
+        <a href="#s15"><span class="chap-num">15</span>软件型号</a>
+        <a href="#s16"><span class="chap-num">16</span>系统配置</a>
+        <a href="#s17"><span class="chap-num">17</span>常见问题</a>
+        <a href="#s18"><span class="chap-num">18</span>NAS 网络存储</a>
+        <a href="#s19"><span class="chap-num">19</span>RetroPie 游戏机</a>
+        <a href="#s20"><span class="chap-num">20</span>Home Assistant</a>
+        <a href="#s21"><span class="chap-num">21</span>Docker 容器</a>
+        <a href="#s22"><span class="chap-num">22</span>机器人/小车/魔镜</a>
+        <a href="#s23"><span class="chap-num">23</span>Pi-Apps 应用商店</a>
+        <a href="#s24"><span class="chap-num">24</span>Minecraft Pi 版</a>
+        <a href="#s25"><span class="chap-num">25</span>如何知道文件/文件夹的路径</a>
+        <a href="#s26"><span class="chap-num">26</span>Linux 基础命令大全</a>
+        <a href="#s27"><span class="chap-num">27</span>安装代理 App</a>
+    </nav>
+</aside>
+
+<!-- ========== 右侧内容 ========== -->
+<main class="main">
+
+    <div class="header">
+        <img src="data:image/png;base64,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" alt="树莓派 logo">
+        <div>
+            <h1>🍓 树莓派 OS 使用教程大全</h1>
+            <p>从零开始 · 手把手教学 · 小白也能看懂</p>
+        </div>
+    </div>
+
+    <!-- 第1章 -->
+    <div class="section" id="s1">
+        <h2>1. 什么是树莓派？</h2>
+        <p><strong>树莓派（Raspberry Pi）</strong> 是一台 <strong>只有信用卡大小的电脑</strong>。</p>
+        <p>它可以做普通电脑能做的事：上网、看视频、写文档、编程。但是它很小、很便宜（几百块钱），而且还带了一排叫 <strong>GPIO</strong> 的小针脚，可以连接灯泡、马达、传感器之类的电子元件。</p>
+        <div class="tip">
+            <strong>💡 一句话理解：</strong>树莓派 = 一台迷你 Linux 电脑 + 可以控制硬件的接口。
+        </div>
+        <p>目前常见的型号：<strong>树莓派 4B</strong>（最普及）、<strong>树莓派 5</strong>（最新款）、<strong>树莓派 Zero 2W</strong>（超小型）。</p>
+    </div>
+
+    <!-- 第2章 -->
+    <div class="section" id="s2">
+        <h2>2. 你需要准备什么？</h2>
+        <p>要把树莓派用起来，你需要这些东西：</p>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border); text-align:left;">配件</th><th style="padding:8px 12px; border:1px solid var(--border); text-align:left;">说明</th><th style="padding:8px 12px; border:1px solid var(--border); text-align:left;">必须吗？</th></tr>
+            <tr><td>树莓派主板</td><td>就是这台小电脑本身</td><td>✅ 必须</td></tr>
+            <tr><td>SD 卡（至少 16GB）</td><td>就像电脑的硬盘，装系统和文件用</td><td>✅ 必须</td></tr>
+            <tr><td>5V 电源适配器（Type-C）</td><td>给树莓派供电，建议买官方电源</td><td>✅ 必须</td></tr>
+            <tr><td>显示器（带 HDMI）</td><td>电视或电脑显示器都可以</td><td>⚠️ 推荐</td></tr>
+            <tr><td>HDMI 线</td><td>连接树莓派和显示器</td><td>⚠️ 推荐</td></tr>
+            <tr><td>键盘和鼠标</td><td>USB 接口的就可以</td><td>⚠️ 推荐</td></tr>
+            <tr><td>SD 卡读卡器</td><td>用来把系统烧录到 SD 卡</td><td>⚠️ 需要</td></tr>
+            <tr><td>散热片 + 风扇</td><td>防止树莓派过热</td><td>🔧 建议</td></tr>
+        </table>
+        <div class="tip"><strong>💡 不想买显示器也能用：</strong>你可以用"无头模式"——只给树莓派通电和联网，然后用你的电脑远程连上去。</div>
+    </div>
+
+    <!-- 第3章 -->
+    <div class="section" id="s3">
+        <h2>3. 烧录系统到 SD 卡</h2>
+        <p>"烧录"就是把操作系统装到 SD 卡上，就像给新电脑装 Windows 一样。</p>
+        <h3>3.1 下载 Raspberry Pi Imager</h3>
+        <p>官方提供了一个超简单的工具叫 <strong>Raspberry Pi Imager</strong>。</p>
+        <ol>
+            <li>打开浏览器，去官网：<code>https://www.raspberrypi.com/software/</code></li>
+            <li>下载适合你电脑的版本（Windows / Mac / Linux）</li>
+            <li>安装并打开这个软件</li>
+        </ol>
+        <h3>3.2 烧录步骤</h3>
+        <div class="step-box"><span class="step-num">1</span> 把 SD 卡插进电脑的读卡器</div>
+        <div class="step-box"><span class="step-num">2</span> 打开 Raspberry Pi Imager</div>
+        <div class="step-box"><span class="step-num">3</span> 点击 <strong>"选择操作系统"</strong> → 选 <strong>"Raspberry Pi OS (32-bit)"</strong>（新手推荐带桌面版）</div>
+        <div class="step-box"><span class="step-num">4</span> 点击 <strong>"选择存储卡"</strong> → 选你的 SD 卡</div>
+        <div class="step-box"><span class="step-num">5</span> <strong>🔥 关键一步：</strong>点击右下角的齿轮图标 ⚙️（设置），开启：<br>✅ 设置用户名和密码<br>✅ 设置 WiFi<br>✅ 开启 SSH<br>✅ 设置地区为 <code>Asia/Shanghai</code>，键盘布局为 <code>us</code></div>
+        <div class="step-box"><span class="step-num">6</span> 点击 <strong>"写入"</strong> → 等进度条跑完（大概 5-10 分钟）</div>
+        <div class="step-box"><span class="step-num">7</span> 烧录完成后弹出 SD 卡，插到树莓派上</div>
+        <div class="warning"><strong>⚠️ 重要提醒：</strong>烧录会清空 SD 卡上所有数据！如果有重要文件先备份。</div>
+        <h3>3.3 其他操作系统选择</h3>
+        <ul>
+            <li><strong>Raspberry Pi OS (32-bit)</strong> — 官方系统，最稳定，新手首选</li>
+            <li><strong>Raspberry Pi OS Lite</strong> — 没有桌面，只有命令行，适合服务器</li>
+            <li><strong>Ubuntu Server / Desktop</strong> — 喜欢 Ubuntu 的可以用</li>
+            <li><strong>LibreELEC / Kodi</strong> — 当电视盒子用</li>
+            <li><strong>RetroPie</strong> — 当游戏机用</li>
+        </ul>
+    </div>
+
+    <!-- 第4章 -->
+    <div class="section" id="s4">
+        <h2>4. 第一次开机设置</h2>
+        <ol>
+            <li>把 SD 卡插到树莓派背面</li>
+            <li>插上键盘、鼠标、显示器（HDMI 线）</li>
+            <li>插上电源线（Type-C）—— 通电自动开机！</li>
+        </ol>
+        <h3>4.1 开机过程</h3>
+        <p>你会先看到屏幕上有彩色方块闪过，然后是一堆文字滚动（那是 Linux 在启动），最后会出现桌面。</p>
+        <div class="tip"><strong>💡 第一次启动比较慢（30秒到1分钟），以后会快一些。耐心等待！</strong></div>
+        <h3>4.2 初始设置（第一次进系统）</h3>
+        <ul>
+            <li><strong>登录：</strong>默认是 <code>pi</code> / <code>raspberry</code></li>
+            <li><strong>更改密码：</strong>点左上角菜单 → Preferences → Raspberry Pi Configuration → 改密码</li>
+            <li><strong>连接 WiFi：</strong>点击右上角网络图标</li>
+            <li><strong>更新系统：</strong>打开终端，输入：</li>
+        </ul>
+        <pre><span class="cmd">sudo apt update</span>            <span class="comment"># 检查更新</span>
+<span class="cmd">sudo apt upgrade -y</span>        <span class="comment"># 安装更新</span></pre>
+        <div class="danger"><strong>🚨 千万不要：</strong>在没点关机的情况下直接拔电源！关机方法：<code>sudo shutdown now</code></div>
+
+        <h3>4.3 安装中文输入法（新手必看）</h3>
+        <p>树莓派系统默认只有英文输入，要打中文得自己装输入法。下面教你装 <strong>fcitx + 搜狗拼音</strong>，装完就能跟 Windows 一样用拼音打字了。</p>
+
+        <p><strong>方法一：用 Pi-Apps 装（最简单）</strong></p>
+        <ol>
+            <li>先装好 Pi-Apps（看第23章）</li>
+            <li>打开 Pi-Apps → 搜 "Chinese" 或 "Sogou"</li>
+            <li>找到 <strong>Chinese Input (fcitx + Sogou)</strong> → 点 Install</li>
+            <li>装完后重启树莓派</li>
+            <li>按 <strong>Ctrl + 空格</strong> 切换中英文输入！</li>
+        </ol>
+
+        <p><strong>方法二：手动安装 fcitx + 搜狗拼音</strong></p>
+        <pre>
+<span class="comment"># 第一步：安装 fcitx 输入法框架</span>
+<span class="cmd">sudo apt update</span>
+<span class="cmd">sudo apt install fcitx fcitx-pinyin fcitx-configtool -y</span>
+
+<span class="comment"># 第二步：下载搜狗拼音 for ARM（树莓派版）</span>
+<span class="cmd">wget https://ime.sogou.com/dl/20230103134913/sogoupinyin_4.2.1.145_arm64.deb -O sogou.deb</span>
+
+<span class="comment"># 第三步：安装搜狗拼音</span>
+<span class="cmd">sudo dpkg -i sogou.deb</span>
+<span class="cmd">sudo apt install -f -y</span>          <span class="comment"># 修复缺的依赖</span>
+
+<span class="comment"># 第四步：设置 fcitx 为默认输入法</span>
+<span class="cmd">sudo nano ~/.profile</span></pre>
+        <p>在文件末尾添加：</p>
+        <pre>export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx</pre>
+        <div class="step-box"><span class="step-num">5</span> 重启树莓派：<code>sudo reboot</code></div>
+        <div class="step-box"><span class="step-num">6</span> 重启后按 <strong>Ctrl + 空格</strong> 切换中英文输入，点右上角键盘图标可以设置</div>
+
+        <p><strong>方法三：只装拼音输入法（不装搜狗，省空间）</strong></p>
+        <p>不想装搜狗，用系统自带的拼音也行：</p>
+        <pre>
+<span class="cmd">sudo apt install fcitx fcitx-googlepinyin -y</span>
+<span class="cmd">sudo reboot</span></pre>
+
+        <div class="tip">
+            <strong>💡 输入法常用快捷键：</strong><br>
+            <strong>Ctrl + 空格</strong> — 切换中/英文<br>
+            <strong>Ctrl + Shift</strong> — 切换输入法（如果你装了多个）<br>
+            <strong>Shift</strong> — 临时切换中/英文（打字时最常用）<br>
+            <strong>右上角键盘图标</strong> — 点它打开输入法设置
+        </div>
+    </div>
+
+    <!-- 第5章 -->
+    <div class="section" id="s5">
+        <h2>5. 树莓派桌面长什么样？</h2>
+        <p>树莓派 OS 的桌面叫 <strong>LXDE / PIXEL</strong>。</p>
+        <ul>
+            <li><strong>左上角 🍓 图标：</strong>类似 Windows 的"开始菜单"</li>
+            <li><strong>右上角：</strong>网络、蓝牙、音量、时间</li>
+            <li><strong>桌面图标：</strong>和 Windows 一样，双击打开</li>
+        </ul>
+        <h3>5.1 系统自带的软件</h3>
+        <ul>
+            <li><strong>Chromium 浏览器</strong> — 上网用</li>
+            <li><strong>LibreOffice</strong> — 免费的 Office 套件</li>
+            <li><strong>Python 3 (Thonny)</strong> — 学编程</li>
+            <li><strong>Scratch</strong> — 图形化编程</li>
+            <li><strong>VLC 播放器</strong> — 看视频</li>
+        </ul>
+        <h3>5.2 文件管理器使用</h3>
+        <ul>
+            <li>桌面上的 <strong>"File Manager"</strong> 图标打开</li>
+            <li><strong>双击</strong> → 打开，<strong>右键</strong> → 复制粘贴删除</li>
+            <li><strong>Ctrl+C / Ctrl+V</strong> — 复制粘贴</li>
+            <li>文件路径：<code>/home/pi/</code> 是你的个人文件夹</li>
+        </ul>
+    </div>
+
+    <!-- 第6章 -->
+    <div class="section" id="s6">
+        <h2>6. 必学的终端命令</h2>
+        <p><strong>终端（Terminal）</strong> 打开方式：点 🍓 → Accessories → Terminal。</p>
+        <h3>📂 文件和文件夹操作</h3>
+        <pre>
+<span class="cmd">pwd</span>                       <span class="comment"># 查看当前在哪个文件夹</span>
+<span class="cmd">ls</span>                        <span class="comment"># 列出当前文件夹里的文件</span>
+<span class="cmd">ls -la</span>                    <span class="comment"># 列出所有文件（包括隐藏）</span>
+<span class="cmd">cd Desktop</span>               <span class="comment"># 进入桌面文件夹</span>
+<span class="cmd">cd ..</span>                     <span class="comment"># 返回上一级文件夹</span>
+<span class="cmd">cd ~</span>                      <span class="comment"># 回到 /home/pi</span>
+<span class="cmd">mkdir myfolder</span>            <span class="comment"># 创建新文件夹</span>
+<span class="cmd">touch test.txt</span>            <span class="comment"># 创建空文件</span>
+<span class="cmd">cp file1 file2</span>            <span class="comment"># 复制文件</span>
+<span class="cmd">mv file1 folder/</span>          <span class="comment"># 移动文件</span>
+<span class="cmd">rm test.txt</span>               <span class="comment"># 删除文件（⚠️ 没有回收站！）</span></pre>
+        <div class="danger"><strong>🚨 千万不要乱用 rm -rf /</strong> —— 这个命令会删掉整个系统！</div>
+        <h3>🔍 查看文件内容</h3>
+        <pre>
+<span class="cmd">cat test.txt</span>              <span class="comment"># 直接显示文件内容</span>
+<span class="cmd">less test.txt</span>             <span class="comment"># 分页查看（按 q 退出）</span>
+<span class="cmd">nano test.txt</span>             <span class="comment"># 用 nano 编辑文件</span></pre>
+        <h3>⚡ 系统相关</h3>
+        <pre>
+<span class="cmd">sudo reboot</span>               <span class="comment"># 重启树莓派</span>
+<span class="cmd">sudo shutdown now</span>         <span class="comment"># 立即关机</span>
+<span class="cmd">df -h</span>                     <span class="comment"># 查看 SD 卡空间</span>
+<span class="cmd">free -h</span>                   <span class="comment"># 查看内存使用</span>
+<span class="cmd">hostname -I</span>               <span class="comment"># 查看 IP 地址</span></pre>
+        <h3>📝 sudo 是什么意思？</h3>
+        <p><code>sudo</code> = <strong>Super User DO</strong>，相当于 Windows 的"以管理员身份运行"。</p>
+        <h3>📝 怎么知道文件/文件夹的完整路径？</h3>
+        <p>这是新手最常卡住的地方——你知道要 cd，但不知道写什么路径。下面教你三种方法：</p>
+        <p><strong>方法一：用 pwd 看当前目录（最简单）</strong></p>
+        <pre>
+<span class="cmd">pwd</span>               <span class="comment"># 显示你当前在哪个文件夹</span>
+                     <span class="comment"># 输出类似：/home/pi/Desktop</span></pre>
+
+        <p><strong>方法二：用 realpath 看文件的完整路径</strong></p>
+        <pre>
+<span class="cmd">realpath 文件名</span>    <span class="comment"># 显示这个文件的完整路径</span>
+                     <span class="comment"># 比如：/home/pi/Downloads/project.zip</span>
+
+<span class="cmd">realpath 文件夹名</span>  <span class="comment"># 显示文件夹的完整路径</span>
+                     <span class="comment"># 比如：/home/pi/pi-apps</span></pre>
+        <p><strong>方法三：在文件管理器里看（不用打字）</strong></p>
+        <ul>
+            <li>打开桌面的 <strong>File Manager</strong>（文件管理器）</li>
+            <li>找到你的文件/文件夹</li>
+            <li><strong>右键</strong> → 点 <strong>Properties</strong>（属性）</li>
+            <li>或者直接看窗口顶部的地址栏，那里就显示着完整路径</li>
+        </ul>
+        <div class="tip"><strong>💡 小技巧：</strong>在文件管理器里打开文件夹，然后右键空白处 → Open in Terminal，终端就会自动 cd 到这个路径，不用自己打字！</div>
+        <ul>
+            <li><code>nano 文件名</code> → 打开文件</li>
+            <li><strong>Ctrl+O</strong> → 保存后回车确认</li>
+            <li><strong>Ctrl+X</strong> → 退出</li>
+        </ul>
+    </div>
+
+    <!-- 第7章 -->
+    <div class="section" id="s7">
+        <h2>7. 安装和卸载软件</h2>
+        <p>树莓派用 <code>apt</code> 命令来管理软件。</p>
+        <h3>7.1 安装软件</h3>
+        <pre>
+<span class="cmd">sudo apt update</span>            <span class="comment"># 刷新软件列表</span>
+<span class="cmd">sudo apt install 软件名</span>     <span class="comment"># 安装软件</span></pre>
+        <h3>7.2 卸载软件</h3>
+        <pre>
+<span class="cmd">sudo apt remove 软件名</span>      <span class="comment"># 卸载</span>
+<span class="cmd">sudo apt purge 软件名</span>       <span class="comment"># 完全卸载（连配置删掉）</span>
+<span class="cmd">sudo apt autoremove</span>        <span class="comment"># 清理没用的依赖</span></pre>
+        <div class="tip"><strong>💡 搜索软件：</strong><code>apt search 关键词</code></div>
+    </div>
+
+    <!-- 第8章 -->
+    <div class="section" id="s8">
+        <h2>8. 连接 WiFi 和网络</h2>
+        <h3>8.1 桌面版连接 WiFi</h3>
+        <ol>
+            <li>点击右上角网络图标</li>
+            <li>找到你的 WiFi 名字，输入密码</li>
+        </ol>
+        <h3>8.2 命令行连接 WiFi</h3>
+        <pre><span class="cmd">sudo nano /etc/wpa_supplicant/wpa_supplicant.conf</span></pre>
+        <p>文件末尾添加：</p>
+        <pre>network={
+    ssid="你的WiFi名称"
+    psk="你的WiFi密码"
+    key_mgmt=WPA-PSK
+}</pre>
+        <pre><span class="cmd">sudo wpa_cli -i wlan0 reconfigure</span></pre>
+        <h3>8.3 查看 IP 地址</h3>
+        <pre><span class="cmd">hostname -I</span>     <span class="comment"># 查看 IP</span>
+<span class="cmd">ifconfig</span>          <span class="comment"># 查看所有网络信息</span></pre>
+    </div>
+
+    <!-- 第9章 -->
+    <div class="section" id="s9">
+        <h2>9. SSH 远程连接</h2>
+        <p><strong>SSH</strong> 让你远程操作树莓派，不用接显示器。</p>
+        <h3>9.1 开启 SSH</h3>
+        <p>终端输入：<code>sudo systemctl enable ssh && sudo systemctl start ssh</code></p>
+        <h3>9.2 从 Windows 连接（用 PuTTY）</h3>
+        <ol>
+            <li>下载 PuTTY：<code>https://www.putty.org/</code></li>
+            <li>Host Name 填树莓派 IP，端口 22，点 Open</li>
+            <li>输入用户名密码即可</li>
+        </ol>
+        <h3>9.3 从 Mac / Linux 连接</h3>
+        <pre><span class="cmd">ssh pi@192.168.1.100</span></pre>
+        <h3>9.4 如何知道树莓派的 IP？</h3>
+        <p>有显示器就输 <code>hostname -I</code>，没显示器就查路由器管理页面。</p>
+        <div class="tip"><strong>💡 试试：</strong><code>ssh pi@raspberrypi.local</code></div>
+    </div>
+
+    <!-- 第10章 -->
+    <div class="section" id="s10">
+        <h2>10. VNC 远程桌面</h2>
+        <p>SSH 只能看到文字，<strong>VNC</strong> 能看到树莓派的桌面。</p>
+        <h3>10.1 开启 VNC</h3>
+        <pre><span class="cmd">sudo systemctl enable vncserver-x11-serviced</span>
+<span class="cmd">sudo systemctl start vncserver-x11-serviced</span></pre>
+        <h3>10.2 连接</h3>
+        <p>下载 <strong>VNC Viewer</strong>，输入树莓派 IP 连接即可。</p>
+    </div>
+
+    <!-- 第11章 -->
+    <div class="section" id="s11">
+        <h2>11. GPIO 引脚入门</h2>
+        <p><strong>GPIO</strong> 是树莓派最牛的特色——控制电子设备。</p>
+        <h3>11.1 引脚图</h3>
+        <p>终端输入 <code>pinout</code> 查看引脚图。</p>
+        <div class="tip"><strong>💡 重点：</strong>5V / 3.3V 供电、GND 接地、GPIO 编号可编程控制。</div>
+        <h3>11.2 用 Python 控制 GPIO（点亮 LED）</h3>
+        <pre><span class="comment">#!/usr/bin/env python3</span>
+import RPi.GPIO as GPIO
+import time
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17, GPIO.OUT)
+
+for i in range(5):
+    GPIO.output(17, GPIO.HIGH)
+    time.sleep(1)
+    GPIO.output(17, GPIO.LOW)
+    time.sleep(1)
+
+GPIO.cleanup()</pre>
+        <p>运行：<code>python3 blink.py</code></p>
+        <div class="danger"><strong>🚨 注意：</strong>不要给 GPIO 输入超过 3.3V！不要直接把 LED 接到 5V！一定要串电阻！</div>
+        <h3>11.3 常用 GPIO 库</h3>
+        <ul>
+            <li><strong>RPi.GPIO</strong> — 最基础</li>
+            <li><strong>gpiozero</strong> — 更简单，适合新手</li>
+            <li><strong>pigpio</strong> — 功能强大</li>
+        </ul>
+    </div>
+
+    <!-- 第12章 -->
+    <div class="section" id="s12">
+        <h2>12. 文件系统说明</h2>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">路径</th><th style="padding:8px 12px; border:1px solid var(--border);">说明</th></tr>
+            <tr><td><code>/</code></td><td>根目录</td></tr>
+            <tr><td><code>/home/pi/</code></td><td>你的个人文件夹</td></tr>
+            <tr><td><code>/boot/</code></td><td>启动文件</td></tr>
+            <tr><td><code>/etc/</code></td><td>系统配置文件</td></tr>
+            <tr><td><code>/var/</code></td><td>日志、数据库等</td></tr>
+            <tr><td><code>/usr/</code></td><td>软件安装目录</td></tr>
+            <tr><td><code>/tmp/</code></td><td>临时文件（重启清空）</td></tr>
+            <tr><td><code>/dev/</code></td><td>硬件设备</td></tr>
+        </table>
+        <h3>12.1 快捷键</h3>
+        <ul>
+            <li><strong>Tab</strong> — 自动补全</li>
+            <li><strong>↑ ↓</strong> — 翻看历史命令</li>
+            <li><strong>Ctrl+C</strong> — 强制停止</li>
+            <li><strong>Ctrl+D</strong> — 退出终端</li>
+            <li><strong>Ctrl+L</strong> — 清屏</li>
+        </ul>
+    </div>
+
+    <!-- 第13章 -->
+    <div class="section" id="s13">
+        <h2>13. 如何解压文件</h2>
+        <div class="warning">
+            <strong>⚠️ 第一步永远先 cd：</strong>在终端里解压文件之前，先用 <code>cd</code> 命令进入压缩包所在的文件夹！
+            比如你的 <code>project.zip</code> 在桌面上，就先输入 <code>cd ~/Desktop</code> 再解压。
+            <pre style="margin-top:8px;"><span class="cmd">cd ~/Desktop</span>          <span class="comment"># 先进入桌面文件夹</span>
+<span class="cmd">unzip project.zip</span>     <span class="comment"># 再解压</span></pre>
+        </div>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">格式</th><th style="padding:8px 12px; border:1px solid var(--border);">解压命令</th></tr>
+            <tr><td><code>.zip</code></td><td><code>unzip 文件.zip</code></td></tr>
+            <tr><td><code>.tar.gz</code></td><td><code>tar -xzf 文件.tar.gz</code></td></tr>
+            <tr><td><code>.tar.bz2</code></td><td><code>tar -xjf 文件.tar.bz2</code></td></tr>
+            <tr><td><code>.tar</code></td><td><code>tar -xf 文件.tar</code></td></tr>
+            <tr><td><code>.gz</code></td><td><code>gunzip 文件.gz</code></td></tr>
+            <tr><td><code>.7z</code></td><td><code>7z x 文件.7z</code>（需装 p7zip）</td></tr>
+        </table>
+        <h3>压缩文件</h3>
+        <pre><span class="cmd">zip -r 输出.zip 文件夹/</span>           <span class="comment"># 压缩成 .zip</span>
+<span class="cmd">tar -czf 输出.tar.gz 文件夹/</span>      <span class="comment"># 压缩成 .tar.gz</span></pre>
+        <div class="tip"><strong>💡 中文乱码：</strong><code>unzip -O GBK 文件名.zip</code></div>
+    </div>
+
+    <!-- 第14章 -->
+    <div class="section" id="s14">
+        <h2>14. 如何运行 .sh 文件</h2>
+        <div class="warning">
+            <strong>⚠️ 第一步永远先 cd：</strong>在终端运行 .sh 文件之前，先用 <code>cd</code> 命令进入 .sh 文件所在的文件夹！
+            比如你的 <code>install.sh</code> 在 <code>/home/pi/pi-apps/</code> 里，就先用 <code>cd</code> 进去，再运行它。
+            <pre style="margin-top:8px;"><span class="cmd">cd ~/pi-apps</span>             <span class="comment"># 先进入文件所在文件夹</span>
+<span class="cmd">chmod +x install.sh</span>     <span class="comment"># 给权限</span>
+<span class="cmd">./install.sh</span>             <span class="comment"># 再运行</span></pre>
+            <strong>偷懒方法：</strong>也可以用 <code>bash</code> 带上完整路径，这样不用 cd：<code>bash /home/pi/pi-apps/install.sh</code>
+        </div>
+        <div class="step-box"><span class="step-num">1</span> 先 cd 到文件所在的文件夹：<code>cd 文件夹路径</code></div>
+        <div class="step-box"><span class="step-num">2</span> 给权限：<code>chmod +x 文件名.sh</code></div>
+        <div class="step-box"><span class="step-num">3</span> 运行：<code>./文件名.sh</code></div>
+        <p>或者一步到位，不用 cd、不用给权限：</p>
+        <pre><span class="cmd">bash 文件名.sh</span>   <span class="comment"># 但文件必须在当前文件夹</span>
+<span class="cmd">bash /完整的/路径/文件名.sh</span>   <span class="comment"># 写完整路径，任何位置都能跑</span></pre>
+        <div class="tip"><strong>💡 新手最推荐：</strong>记得 cd 到文件夹后再用 <code>bash 文件名.sh</code>，不用改权限，最安全。</div>
+    </div>
+
+    <!-- 第15章 -->
+    <div class="section" id="s15">
+        <h2>15. 树莓派该安装什么型号的软件？</h2>
+        <div class="tip"><strong>💡 树莓派的 CPU 是 ARM 架构</strong>，普通电脑是 x86 架构。两个不通用！<br>下载时选 <code>arm64</code> 或 <code>aarch64</code> ✅，<code>amd64</code> ❌ 不能用。</div>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">字样</th><th style="padding:8px 12px; border:1px solid var(--border);">树莓派能用？</th></tr>
+            <tr><td><code>arm64</code> / <code>aarch64</code></td><td>✅ 能用</td></tr>
+            <tr><td><code>armhf</code> / <code>armv7l</code></td><td>✅ 也能用</td></tr>
+            <tr><td><code>amd64</code> / <code>x86_64</code></td><td>❌ 不能用</td></tr>
+            <tr><td><code>i386</code> / <code>i686</code></td><td>❌ 不能用</td></tr>
+        </table>
+    </div>
+
+    <!-- 第16章 -->
+    <div class="section" id="s16">
+        <h2>16. 系统设置与配置</h2>
+        <h3>16.1 raspi-config</h3>
+        <pre><span class="cmd">sudo raspi-config</span></pre>
+        <p>常用设置：改密码、开 SSH/VNC/I2C/Spi、SD 卡扩容时区等。</p>
+        <div class="warning"><strong>⚠️ SD 卡扩容：</strong>Advanced Options → Expand Filesystem → 重启生效</div>
+        <h3>16.2 改主机名</h3>
+        <pre><span class="cmd">sudo raspi-config</span> → 1 System Options → Hostname</pre>
+        <h3>16.3 设置静态 IP</h3>
+        <pre><span class="cmd">sudo nano /etc/dhcpcd.conf</span></pre>
+        文件末尾加：
+        <pre>interface wlan0
+static ip_address=192.168.1.100/24
+static routers=192.168.1.1
+static domain_name_servers=8.8.8.8</pre>
+    </div>
+
+    <!-- 第17章 -->
+    <div class="section" id="s17">
+        <h2>17. 常见问题解决</h2>
+        <ul>
+            <li><strong>开不了机？</strong>检查 SD 卡、电源（5V/3A）、HDMI 线</li>
+            <li><strong>太烫了？</strong>正常 40-80°C，超 85°C 降频，加散热片</li>
+            <li><strong>SSH 连不上？</strong>同 WiFi？SSH 开了没？IP 输对了？</li>
+            <li><strong>SD 卡满了？</strong><code>sudo apt autoremove</code> + <code>sudo apt autoclean</code></li>
+            <li><strong>关机：</strong><code>sudo shutdown -h now</code>，等绿灯灭再拔电</li>
+        </ul>
+    </div>
+
+    <!-- 第18章 -->
+    <div class="section" id="s18">
+        <h2>18. 搭建 NAS 家庭网络存储</h2>
+        <div class="tip"><strong>💡 一句话：</strong>树莓派插大硬盘，变成你家专属"百度网盘"。</div>
+        <h3>18.1 用 Samba 文件共享</h3>
+        <div class="step-box"><span class="step-num">1</span> 插硬盘 → <code>lsblk</code> 查看（一般是 /dev/sda1）</div>
+        <div class="step-box"><span class="step-num">2</span> 挂载：<code>sudo mount /dev/sda1 /media/usb</code></div>
+        <div class="step-box"><span class="step-num">3</span> 安装 Samba：<code>sudo apt install samba samba-common-bin -y</code></div>
+        <div class="step-box"><span class="step-num">4</span> <code>sudo nano /etc/samba/smb.conf</code> → 末尾加：</div>
+        <pre>[MyNAS]
+   path = /media/usb
+   writeable = yes
+   guest ok = no
+   create mask = 0777
+   directory mask = 0777</pre>
+        <div class="step-box"><span class="step-num">5</span> <code>sudo smbpasswd -a pi</code> → 重启：<code>sudo systemctl restart smbd</code></div>
+        <h3>18.2 从其他设备访问</h3>
+        <p>Windows：<code>\\树莓派IP\MyNAS</code> &nbsp; Mac：<code>smb://树莓派IP/MyNAS</code></p>
+    </div>
+
+    <!-- 第19章 -->
+    <div class="section" id="s19">
+        <h2>19. 制作 RetroPie 怀旧游戏机</h2>
+        <div class="tip"><strong>💡 一句话：</strong>把树莓派变成"小霸王学习机 Plus"。</div>
+        <h3>19.1 刷 RetroPie 系统</h3>
+        <p>去 <code>https://retropie.org.uk/download/</code> 下载镜像 → Imager 烧录 → 插卡开机</p>
+        <h3>19.2 在现有系统上装</h3>
+        <pre><span class="cmd">sudo apt update && sudo apt upgrade -y</span>
+<span class="cmd">git clone --depth 1 https://github.com/RetroPie/RetroPie-Setup.git</span>
+<span class="cmd">cd RetroPie-Setup && sudo ./retropie_setup.sh</span></pre>
+        <p>选 <strong>Basic Install</strong> 自动装（约1小时）。</p>
+        <h3>19.3 装游戏 ROM</h3>
+        <p>电脑打开 <code>\\树莓派IP\roms</code> → 找到 nes/snes/megadrive/psx 等文件夹 → 把 ROM 拖进去。</p>
+        <h3>19.4 常用快捷键</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">操作</th><th style="padding:8px 12px; border:1px solid var(--border);">按键</th></tr>
+            <tr><td>退出游戏</td><td>Select + Start</td></tr>
+            <tr><td>保存进度</td><td>Select + R1</td></tr>
+            <tr><td>读取进度</td><td>Select + L1</td></tr>
+        </table>
+    </div>
+
+    <!-- 第20章 -->
+    <div class="section" id="s20">
+        <h2>20. 搭建 Home Assistant 智能家居中心</h2>
+        <div class="tip"><strong>💡 把小米、飞利浦等不同品牌的智能设备统一管理。</strong></div>
+        <h3>20.1 用 Docker 安装</h3>
+        <pre><span class="cmd">sudo apt install docker.io -y</span>
+<span class="cmd">sudo docker run -d --restart=unless-stopped --name homeassistant -p 8123:8123 -v /home/pi/ha_config:/config ghcr.io/home-assistant/home-assistant:stable</span></pre>
+        <h3>20.2 访问</h3>
+        <p>浏览器打开 <code>http://树莓派IP:8123</code> → 创建账号 → 开始添加设备</p>
+        <h3>20.3 新手自动化例子</h3>
+        <ul>
+            <li><strong>天黑开灯：</strong>日落后触发 → 开客厅灯</li>
+            <li><strong>人走关灯：</strong>10分钟无人移动 → 关灯</li>
+            <li><strong>起床闹钟：</strong>早7点 → 慢慢开亮卧室灯 + 播天气</li>
+        </ul>
+    </div>
+
+    <!-- 第21章 -->
+    <div class="section" id="s21">
+        <h2>21. 玩转 Docker 容器</h2>
+        <div class="tip"><strong>💡 Docker 就像手机里的 App，每个 App 各自运行互不干扰。</strong></div>
+        <h3>21.1 安装 Docker</h3>
+        <pre><span class="cmd">curl -fsSL https://get.docker.com -o get-docker.sh</span>
+<span class="cmd">sudo bash get-docker.sh</span>
+<span class="cmd">sudo usermod -aG docker pi</span></pre>
+        <h3>21.2 基本命令</h3>
+        <pre><span class="cmd">docker ps</span>            <span class="comment"># 运行中的容器</span>
+<span class="cmd">docker images</span>        <span class="comment"># 镜像列表</span>
+<span class="cmd">docker pull 镜像名</span>   <span class="comment"># 下载镜像</span>
+<span class="cmd">docker run 镜像名</span>    <span class="comment"># 运行容器</span>
+<span class="cmd">docker stop 容器名</span>   <span class="comment"># 停止容器</span>
+<span class="cmd">docker logs 容器名</span>   <span class="comment"># 查看日志</span></pre>
+        <h3>21.3 实用服务一键部署</h3>
+        <p><strong>Portainer（管理面板）：</strong></p>
+        <pre><span class="cmd">docker run -d --restart=unless-stopped --name portainer -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer-ce:latest</span></pre>
+        <p><strong>Jellyfin（影音服务器）：</strong></p>
+        <pre><span class="cmd">docker run -d --restart=unless-stopped --name jellyfin -p 8096:8096 -v /home/pi/movies:/media linuxserver/jellyfin:latest</span></pre>
+    </div>
+
+    <!-- 第22章 -->
+    <div class="section" id="s22">
+        <h2>22. 制作机器人/小车/Smart Mirror</h2>
+        <h3>22.1 遥控小车</h3>
+        <p>材料：小车底盘 + L298N 电机驱动板 + 移动电源 + 杜邦线</p>
+        <pre>L298N → 树莓派
+IN1 → GPIO 17   IN2 → GPIO 18
+IN3 → GPIO 22   IN4 → GPIO 23
+ENA → GPIO 24   ENB → GPIO 25
+GND → GND</pre>
+        <h3>22.2 Smart Mirror 魔法镜</h3>
+        <p>材料：旧显示器 + 单向透视玻璃 + 木框。软件用 MagicMirror²：</p>
+        <pre><span class="cmd">git clone https://github.com/MichMich/MagicMirror.git ~/MagicMirror</span>
+<span class="cmd">cd ~/MagicMirror && npm install</span>
+<span class="cmd">cp config/config.js.sample config/config.js</span>
+<span class="cmd">npm start</span></pre>
+        <h3>22.3 超声波避障小车</h3>
+        <p>额外材料：HC-SR04 超声波传感器（几块钱）。Trig → GPIO 5, Echo → GPIO 6</p>
+    </div>
+
+    <!-- 第23章 -->
+    <div class="section" id="s23">
+        <h2>23. 安装 Pi-Apps（树莓派应用商店）</h2>
+        <div class="tip"><strong>💡 像手机上的 App Store，几百个专为树莓派优化的软件一键装。</strong></div>
+        <h3>23.1 安装</h3>
+        <pre><span class="cmd">git clone https://github.com/Botspot/pi-apps.git ~/pi-apps</span>
+<span class="cmd">cd ~/pi-apps && bash install.sh</span></pre>
+        <h3>23.2 使用</h3>
+        <ol>
+            <li>双击桌面 Pi-Apps 图标</li>
+            <li>左侧选分类（Games / Programming / Internet...）</li>
+            <li>点软件 → 点 <strong>Install</strong> 按钮</li>
+        </ol>
+        <h3>23.3 里面有什么？</h3>
+        <ul>
+            <li>🎮 游戏：Minecraft Pi、Box64、PPSSPP</li>
+            <li>💻 编程：VS Code、Arduino IDE</li>
+            <li>🌐 上网：Chromium、Firefox</li>
+            <li>🎬 多媒体：OBS Studio、Kodi</li>
+        </ul>
+    </div>
+
+    <!-- 第24章 -->
+    <div class="section" id="s24">
+        <h2>24. 安装 Minecraft Pi 版（我的世界）</h2>
+        <div class="tip"><strong>💡 方法一用 Pi-Apps 装，方法二手动装，方法三用树莓派搭服务器联机。</strong></div>
+        <h3>24.1 用 Pi-Apps 装</h3>
+        <p>打开 Pi-Apps → Games → Minecraft Pi → Install</p>
+        <h3>24.2 手动安装</h3>
+        <pre><span class="cmd">wget https://archive.org/download/minecraft-pi-0.1.1/minecraft-pi-0.1.1.deb</span>
+<span class="cmd">sudo dpkg -i minecraft-pi-0.1.1.deb</span>
+<span class="cmd">sudo apt install -f</span></pre>
+        <h3>24.3 操作按键</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">操作</th><th style="padding:8px 12px; border:1px solid var(--border);">按键</th></tr>
+            <tr><td>移动</td><td>W A S D</td></tr>
+            <tr><td>跳跃</td><td>空格</td></tr>
+            <tr><td>放方块</td><td>鼠标左键</td></tr>
+            <tr><td>拆方块</td><td>鼠标右键</td></tr>
+            <tr><td>选方块</td><td>滚轮 / 1-8</td></tr>
+        </table>
+        <h3>24.4 用 Python 控制 Minecraft</h3>
+        <pre><span class="cmd">pip3 install mcpi</span></pre>
+        <p>写个脚本一键造房子：</p>
+        <pre><span class="comment">#!/usr/bin/env python3</span>
+from mcpi.minecraft import Minecraft
+mc = Minecraft.create()
+pos = mc.player.getPos()
+
+<span class="comment"># 在玩家旁边造个 8x4x6 的房子</span>
+x, y, z = pos.x + 5, pos.y, pos.z
+mc.setBlocks(x, y, z, x+8, y, z+6, 5)        <span class="comment"># 地板</span>
+mc.setBlocks(x, y+1, z, x+8, y+4, z+6, 45)   <span class="comment"># 墙壁</span>
+mc.setBlocks(x+1, y+1, z+1, x+7, y+3, z+5, 0) <span class="comment"># 挖空</span>
+mc.setBlocks(x+4, y+1, z, x+5, y+2, z, 0)    <span class="comment"># 门洞</span>
+mc.postToChat("🏠 房子盖好啦！")</pre>
+        <p>游戏开着的状态下，终端跑 <code>python3 mc_house.py</code>。</p>
+        <h3>24.5 Minecraft Pi 联机玩法（MCPI Revival）</h3>
+        <p>官方的 Minecraft Pi 版只有单人模式，但有人做了个改良版叫 <strong>MCPI Revival</strong>，恢复了局域网联机功能。</p>
+
+        <div class="step-box"><span class="step-num">1</span> 先装官方 Minecraft Pi</div>
+        <pre><span class="cmd">wget https://archive.org/download/minecraft-pi-0.1.1/minecraft-pi-0.1.1.deb</span>
+<span class="cmd">sudo dpkg -i minecraft-pi-0.1.1.deb</span>
+<span class="cmd">sudo apt install -f</span></pre>
+        <div class="step-box"><span class="step-num">2</span> 安装 MCPI Revival 联机补丁</div>
+        <pre><span class="cmd">wget https://github.com/TheBrokenRail/minecraft-pi-reborn/releases/latest/download/mcpil-installer</span>
+<span class="cmd">bash mcpil-installer</span></pre>
+        <div class="step-box"><span class="step-num">3</span> 运行联机版</div>
+        <p>装完后桌面上会有 <strong>Minecraft Pi: Reborn</strong> 图标，打开它。你和朋友在同一个 WiFi 下就能互相加进来了。</p>
+
+        <div class="tip">
+            <strong>💡 或者在 Pi-Apps 装：</strong>打开 Pi-Apps → Games → <strong>MCPIL (Minecraft Pi Multiplayer)</strong> → Install，效果一样。
+        </div>
+    </div>
+
+    <!-- 第25章 -->
+    <div class="section" id="s25">
+        <h2>25. 如何知道文件/文件夹的路径？</h2>
+        <p>这是新手最常卡住的地方——你知道要 <code>cd</code>，但那个路径到底长什么样？去哪儿看？下面教你四种方法，总有一种适合你。</p>
+
+        <h3>25.1 方法一：用 pwd 看当前目录（最简单）</h3>
+        <p>打开终端，输入 <code>pwd</code>，它直接告诉你<strong>此时此刻你在哪个文件夹</strong>：</p>
+        <pre>
+<span class="cmd">pwd</span>
+<span class="out">/home/pi/Desktop</span>   <span class="comment"># 原来我在桌面！</span></pre>
+        <p><code>pwd</code> = <strong>Print Working Directory</strong>（打印当前工作目录）。每次你迷路了，就输入 pwd，它告诉你你在哪。</p>
+
+        <h3>25.2 方法二：用 realpath 看任意文件/文件夹的路径</h3>
+        <p>不管文件在哪个犄角旮旯，<code>realpath</code> 都能告诉你它的完整路径：</p>
+        <pre>
+<span class="cmd">realpath project.zip</span>
+<span class="out">/home/pi/Desktop/project.zip</span>
+
+<span class="cmd">realpath pi-apps</span>    <span class="comment"># 文件夹也行</span>
+<span class="out">/home/pi/pi-apps</span>
+
+<span class="cmd">realpath 123.txt</span>
+<span class="out">/home/pi/Downloads/123.txt</span>   <span class="comment"># 原来它在 Downloads 里！</span></pre>
+        <p>有了完整路径，你就能直接 <code>cd /home/pi/Downloads</code> 跳过去了。</p>
+
+        <h3>25.3 方法三：在文件管理器里看（树莓派版"访达"）</h3>
+        <p>不想打字？完全可以在图形界面里操作。</p>
+
+        <p><strong>方法A — 直接看窗口顶部的地址栏：</strong></p>
+        <ol>
+            <li>打开桌面的 <strong>File Manager</strong>（文件管理器，在桌面左上角 🍓 → Accessories → File Manager）</li>
+            <li>导航到你要的文件夹</li>
+            <li>看窗口<strong>顶部</strong>，那里就显示着当前路径，比如 <code>/home/pi/Downloads</code></li>
+            <li><strong>点一下路径的文字</strong>，它会变成可编辑状态，按 <strong>Ctrl+C</strong> 就能复制路径</li>
+        </ol>
+
+        <p><strong>方法B — 右键看属性：</strong></p>
+        <ol>
+            <li>在文件管理器里找到一个文件或文件夹</li>
+            <li><strong>右键</strong> → 点 <strong>Properties</strong>（属性）</li>
+            <li>弹出的窗口里会显示 <strong>Parent Folder</strong>（父文件夹），就是它的完整路径</li>
+        </ol>
+
+        <p><strong>方法C — 最偷懒的大招（强烈推荐！）：</strong></p>
+        <ol>
+            <li>在文件管理器里打开你想要的文件夹</li>
+            <li>在 <strong>空白处右键</strong> → 选 <strong>Open in Terminal</strong></li>
+            <li>终端自动打开，而且已经自动 cd 到这个文件夹了！</li>
+            <li>输入 <code>pwd</code> 看一眼，路径已经在那里了，直接输命令操作就行</li>
+        </ol>
+
+        <div class="tip">
+            <strong>💡 总结这三种方法：</strong><br>
+            • 只想<strong>看</strong>路径 → 看窗口顶部的地址栏<br>
+            • 想<strong>复制</strong>路径 → 点地址栏 → Ctrl+C<br>
+            • 想<strong>直接操作</strong> → 右键 → Open in Terminal
+        </div>
+
+        <h3>25.4 方法四：用 find 命令搜文件（不知道文件在哪的时候用）</h3>
+        <p>你只记得文件名，但不知道它在哪个文件夹里？用 <code>find</code> 搜：</p>
+        <pre>
+<span class="cmd">find ~ -name "project.zip"</span>          <span class="comment"># 在 home 里搜 project.zip</span>
+<span class="out">/home/pi/Downloads/project.zip</span>      <span class="comment"># 找到了！</span>
+
+<span class="cmd">find ~ -name "*.sh"</span>                  <span class="comment"># 搜所有 .sh 文件</span>
+<span class="out">/home/pi/pi-apps/install.sh</span>         <span class="comment"># 列出所有 .sh</span>
+/home/pi/pi-apps/uninstall.sh</pre>
+
+        <h3>25.5 总结：拿到路径后怎么用？</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">目标</th><th style="padding:8px 12px; border:1px solid var(--border);">对你看到的路径</th><th style="padding:8px 12px; border:1px solid var(--border);">输入的命令</th></tr>
+            <tr><td>进入这个文件夹</td><td><code>/home/pi/Downloads</code></td><td><code>cd /home/pi/Downloads</code></td></tr>
+            <tr><td>解压这个文件</td><td><code>/home/pi/Downloads/project.zip</code></td><td><code>cd /home/pi/Downloads</code> 再 <code>unzip project.zip</code></td></tr>
+            <tr><td>运行这个 .sh</td><td><code>/home/pi/pi-apps/install.sh</code></td><td><code>bash /home/pi/pi-apps/install.sh</code></td></tr>
+            <tr><td>查看这个文件</td><td><code>/home/pi/Desktop/123.txt</code></td><td><code>cat /home/pi/Desktop/123.txt</code></td></tr>
+        </table>
+        <div class="tip"><strong>💡 记住一个口诀：</strong>先 pwd 看在哪 → 再 realpath 看文件在哪 → 用 cd 跳过去 → 然后操作！三步不出错。</div>
+    </div>
+
+    <!-- 第26章 -->
+    <div class="section" id="s26">
+        <h2>26. Linux 基础命令大全</h2>
+        <p>这节把前面没讲到的、但日常会用到的 Linux 命令全部列出来，按功能分好类，当字典查就行。</p>
+
+        <h3>26.1 文件与文件夹操作</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">命令</th><th style="padding:8px 12px; border:1px solid var(--border);">作用</th><th style="padding:8px 12px; border:1px solid var(--border);">例子</th></tr>
+            <tr><td><code>ls</code></td><td>列出当前文件夹的文件</td><td><code>ls</code></td></tr>
+            <tr><td><code>ls -l</code></td><td>列表形式显示（含权限、大小、日期）</td><td><code>ls -l</code></td></tr>
+            <tr><td><code>ls -a</code></td><td>显示所有文件（包括隐藏文件，以 . 开头的）</td><td><code>ls -a</code></td></tr>
+            <tr><td><code>ls -la</code></td><td>上面两个合起来</td><td><code>ls -la</code></td></tr>
+            <tr><td><code>ls -lh</code></td><td>文件大小用 GB/MB/KB 显示（更易读）</td><td><code>ls -lh</code></td></tr>
+            <tr><td><code>cd 路径</code></td><td>进入指定文件夹</td><td><code>cd /home/pi/Desktop</code></td></tr>
+            <tr><td><code>cd ..</code></td><td>返回上一级</td><td><code>cd ..</code></td></tr>
+            <tr><td><code>cd ~</code></td><td>回到家目录</td><td><code>cd ~</code></td></tr>
+            <tr><td><code>pwd</code></td><td>显示当前在哪个文件夹</td><td><code>pwd</code></td></tr>
+            <tr><td><code>mkdir 文件夹名</code></td><td>创建新文件夹</td><td><code>mkdir myproject</code></td></tr>
+            <tr><td><code>mkdir -p a/b/c</code></td><td>一口气创建多层文件夹</td><td><code>mkdir -p project/src/utils</code></td></tr>
+            <tr><td><code>touch 文件名</code></td><td>创建空文件</td><td><code>touch hello.py</code></td></tr>
+            <tr><td><code>cp 来源 目标</code></td><td>复制文件</td><td><code>cp a.txt b.txt</code></td></tr>
+            <tr><td><code>cp -r 来源 目标</code></td><td>复制整个文件夹</td><td><code>cp -r project backup</code></td></tr>
+            <tr><td><code>mv 来源 目标</code></td><td>移动文件/文件夹（也能重命名）</td><td><code>mv old.txt new.txt</code></td></tr>
+            <tr><td><code>rm 文件名</code></td><td>删除文件</td><td><code>rm test.txt</code></td></tr>
+            <tr><td><code>rm -r 文件夹</code></td><td>删除文件夹</td><td><code>rm -r oldfolder</code></td></tr>
+            <tr><td><code>rm -rf 文件夹</code></td><td>强制删除（⚠️ 无警告，小心！）</td><td><code>rm -rf tmp</code></td></tr>
+            <tr><td><code>find ~ -name "文件名"</code></td><td>在 home 里搜文件</td><td><code>find ~ -name "*.sh"</code></td></tr>
+            <tr><td><code>realpath 文件名</code></td><td>显示文件的完整路径</td><td><code>realpath test.txt</code></td></tr>
+        </table>
+
+        <h3>26.2 查看文件内容</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">命令</th><th style="padding:8px 12px; border:1px solid var(--border);">作用</th><th style="padding:8px 12px; border:1px solid var(--border);">例子</th></tr>
+            <tr><td><code>cat 文件名</code></td><td>直接显示整个文件内容</td><td><code>cat config.txt</code></td></tr>
+            <tr><td><code>cat -n 文件名</code></td><td>显示行号</td><td><code>cat -n config.txt</code></td></tr>
+            <tr><td><code>less 文件名</code></td><td>分页查看（按 q 退出）</td><td><code>less large.log</code></td></tr>
+            <tr><td><code>head 文件名</code></td><td>只看前 10 行</td><td><code>head log.txt</code></td></tr>
+            <tr><td><code>head -n 20 文件名</code></td><td>只看前 20 行</td><td><code>head -n 20 log.txt</code></td></tr>
+            <tr><td><code>tail 文件名</code></td><td>只看后 10 行</td><td><code>tail log.txt</code></td></tr>
+            <tr><td><code>tail -f 文件名</code></td><td>持续盯着文件（看日志刷新用，Ctrl+C 停止）</td><td><code>tail -f syslog</code></td></tr>
+            <tr><td><code>wc 文件名</code></td><td>统计行数、单词数、字节数</td><td><code>wc data.csv</code></td></tr>
+            <tr><td><code>wc -l 文件名</code></td><td>只看行数</td><td><code>wc -l data.csv</code></td></tr>
+            <tr><td><code>sort 文件名</code></td><td>排序显示</td><td><code>sort list.txt</code></td></tr>
+            <tr><td><code>sort -r 文件名</code></td><td>倒序排列</td><td><code>sort -r list.txt</code></td></tr>
+            <tr><td><code>grep 关键词 文件名</code></td><td>搜索关键词</td><td><code>grep "error" log.txt</code></td></tr>
+            <tr><td><code>grep -i 关键词 文件名</code></td><td>忽略大小写搜索</td><td><code>grep -i "hello" log.txt</code></td></tr>
+            <tr><td><code>grep -r 关键词 文件夹</code></td><td>在文件夹里递归搜索</td><td><code>grep -r "TODO" ~/project</code></td></tr>
+        </table>
+
+        <div class="tip">
+            <strong>💡 grep 是真的好用：</strong>比如你写了好几个 Python 文件，忘了把打印放哪个文件了，搜一下 <code>grep -r "print" ~/myproject</code> 就全列出来了。
+        </div>
+
+        <h3>26.3 系统信息</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">命令</th><th style="padding:8px 12px; border:1px solid var(--border);">作用</th><th style="padding:8px 12px; border:1px solid var(--border);">例子</th></tr>
+            <tr><td><code>uname -a</code></td><td>查看系统内核信息</td><td><code>uname -a</code></td></tr>
+            <tr><td><code>uname -m</code></td><td>查看 CPU 架构（arm64 / x86）</td><td><code>uname -m</code></td></tr>
+            <tr><td><code>hostname -I</code></td><td>查看 IP 地址</td><td><code>hostname -I</code></td></tr>
+            <tr><td><code>df -h</code></td><td>查看磁盘空间（还剩多少）</td><td><code>df -h</code></td></tr>
+            <tr><td><code>du -sh 文件夹</code></td><td>查看文件夹占了多少空间</td><td><code>du -sh Downloads</code></td></tr>
+            <tr><td><code>free -h</code></td><td>查看内存使用情况</td><td><code>free -h</code></td></tr>
+            <tr><td><code>top</code></td><td>实时查看进程和 CPU/内存占用（按 q 退出）</td><td><code>top</code></td></tr>
+            <tr><td><code>htop</code></td><td>比 top 更好看（要装：<code>sudo apt install htop</code>）</td><td><code>htop</code></td></tr>
+            <tr><td><code>ps aux</code></td><td>列出所有正在运行的进程</td><td><code>ps aux</code></td></tr>
+            <tr><td><code>kill 进程ID</code></td><td>结束一个进程</td><td><code>kill 1234</code></td></tr>
+            <tr><td><code>kill -9 进程ID</code></td><td>强制结束（杀不掉的用这个）</td><td><code>kill -9 1234</code></td></tr>
+            <tr><td><code>uptime</code></td><td>查看树莓派开了多久</td><td><code>uptime</code></td></tr>
+            <tr><td><code>date</code></td><td>查看当前时间日期</td><td><code>date</code></td></tr>
+            <tr><td><code>cal</code></td><td>显示日历</td><td><code>cal</code></td></tr>
+            <tr><td><code>clear</code></td><td>清屏（Ctrl+L 也一样）</td><td><code>clear</code></td></tr>
+        </table>
+
+        <h3>26.4 网络相关</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">命令</th><th style="padding:8px 12px; border:1px solid var(--border);">作用</th><th style="padding:8px 12px; border:1px solid var(--border);">例子</th></tr>
+            <tr><td><code>ping 地址</code></td><td>测试网络通不通（按 Ctrl+C 停止）</td><td><code>ping baidu.com</code></td></tr>
+            <tr><td><code>wget 网址</code></td><td>下载文件</td><td><code>wget https://example.com/file.zip</code></td></tr>
+            <tr><td><code>curl 网址</code></td><td>请求网页或 API</td><td><code>curl https://api.github.com</code></td></tr>
+            <tr><td><code>ifconfig</code></td><td>查看网络接口信息</td><td><code>ifconfig</code></td></tr>
+            <tr><td><code>nmap -sn 192.168.1.0/24</code></td><td>扫描局域网有哪些设备（需装 nmap）</td><td><code>sudo apt install nmap && sudo nmap -sn 192.168.1.0/24</code></td></tr>
+        </table>
+
+        <h3>26.5 权限相关</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">命令</th><th style="padding:8px 12px; border:1px solid var(--border);">作用</th><th style="padding:8px 12px; border:1px solid var(--border);">例子</th></tr>
+            <tr><td><code>chmod +x 文件</code></td><td>给文件加执行权限</td><td><code>chmod +x run.sh</code></td></tr>
+            <tr><td><code>chmod 755 文件</code></td><td>设置权限为 755（常用）</td><td><code>chmod 755 script.py</code></td></tr>
+            <tr><td><code>chmod -R 755 文件夹</code></td><td>给文件夹里所有文件设权限</td><td><code>chmod -R 755 myfolder</code></td></tr>
+            <tr><td><code>chown 用户:组 文件</code></td><td>更改文件的所有者</td><td><code>sudo chown pi:pi test.txt</code></td></tr>
+            <tr><td><code>whoami</code></td><td>查看当前登录的用户名</td><td><code>whoami</code></td></tr>
+            <tr><td><code>sudo 命令</code></td><td>以管理员身份执行命令</td><td><code>sudo apt install vim</code></td></tr>
+        </table>
+
+        <div class="danger">
+            <strong>🚨 权限数字速查（记住前三个就行）：</strong><br>
+            <code>7</code> = 读+写+执行（rwx）<br>
+            <code>6</code> = 读+写（rw-）<br>
+            <code>5</code> = 读+执行（r-x）<br>
+            <code>4</code> = 只读（r--）<br>
+            <code>0</code> = 无权限（---）<br>
+            所以 <code>755</code> = 自己可以读写执行，别人只能读和执行。
+        </div>
+
+        <h3>26.6 压缩和解压</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">命令</th><th style="padding:8px 12px; border:1px solid var(--border);">作用</th><th style="padding:8px 12px; border:1px solid var(--border);">例子</th></tr>
+            <tr><td><code>tar -xzf 文件.tar.gz</code></td><td>解压 .tar.gz</td><td><code>tar -xzf archive.tar.gz</code></td></tr>
+            <tr><td><code>tar -czf 输出.tar.gz 文件夹</code></td><td>压缩成 .tar.gz</td><td><code>tar -czf backup.tar.gz myfolder</code></td></tr>
+            <tr><td><code>unzip 文件.zip</code></td><td>解压 .zip</td><td><code>unzip files.zip</code></td></tr>
+            <tr><td><code>zip -r 输出.zip 文件夹</code></td><td>压缩成 .zip</td><td><code>zip -r backup.zip myfolder</code></td></tr>
+            <tr><td><code>gunzip 文件.gz</code></td><td>解压 .gz</td><td><code>gunzip file.gz</code></td></tr>
+            <tr><td><code>7z x 文件.7z</code></td><td>解压 .7z（需装 p7zip）</td><td><code>7z x archive.7z</code></td></tr>
+        </table>
+
+        <h3>26.7 软件管理</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">命令</th><th style="padding:8px 12px; border:1px solid var(--border);">作用</th><th style="padding:8px 12px; border:1px solid var(--border);">例子</th></tr>
+            <tr><td><code>sudo apt update</code></td><td>刷新软件列表</td><td><code>sudo apt update</code></td></tr>
+            <tr><td><code>sudo apt upgrade</code></td><td>升级所有软件</td><td><code>sudo apt upgrade -y</code></td></tr>
+            <tr><td><code>sudo apt install 软件</code></td><td>安装软件</td><td><code>sudo apt install vim -y</code></td></tr>
+            <tr><td><code>sudo apt remove 软件</code></td><td>卸载软件</td><td><code>sudo apt remove vim</code></td></tr>
+            <tr><td><code>sudo apt purge 软件</code></td><td>完全卸载（删配置）</td><td><code>sudo apt purge vim</code></td></tr>
+            <tr><td><code>sudo apt autoremove</code></td><td>清理没用的依赖</td><td><code>sudo apt autoremove -y</code></td></tr>
+            <tr><td><code>apt search 关键词</code></td><td>搜索软件</td><td><code>apt search game</code></td></tr>
+            <tr><td><code>dpkg -i 文件.deb</code></td><td>安装本地 .deb 包</td><td><code>sudo dpkg -i package.deb</code></td></tr>
+            <tr><td><code>sudo apt install -f</code></td><td>修复缺依赖的问题</td><td><code>sudo apt install -f</code></td></tr>
+        </table>
+
+        <h3>26.8 关机与重启</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">命令</th><th style="padding:8px 12px; border:1px solid var(--border);">作用</th><th style="padding:8px 12px; border:1px solid var(--border);">例子</th></tr>
+            <tr><td><code>sudo shutdown now</code></td><td>立即关机</td><td><code>sudo shutdown now</code></td></tr>
+            <tr><td><code>sudo shutdown -h now</code></td><td>关机并断电</td><td><code>sudo shutdown -h now</code></td></tr>
+            <tr><td><code>sudo reboot</code></td><td>重启</td><td><code>sudo reboot</code></td></tr>
+            <tr><td><code>sudo shutdown -r 10</code></td><td>10 分钟后重启</td><td><code>sudo shutdown -r 10</code></td></tr>
+            <tr><td><code>exit</code></td><td>退出终端或 SSH</td><td><code>exit</code></td></tr>
+        </table>
+
+        <h3>26.9 好用的快捷键</h3>
+        <table>
+            <tr><th style="padding:8px 12px; border:1px solid var(--border);">快捷键</th><th style="padding:8px 12px; border:1px solid var(--border);">作用</th></tr>
+            <tr><td><strong>Tab</strong></td><td>自动补全命令、文件名、路径</td></tr>
+            <tr><td><strong>↑ ↓</strong></td><td>翻看之前输入过的命令</td></tr>
+            <tr><td><strong>Ctrl+C</strong></td><td>强制停止正在运行的程序</td></tr>
+            <tr><td><strong>Ctrl+D</strong></td><td>退出当前终端</td></tr>
+            <tr><td><strong>Ctrl+L</strong></td><td>清屏（和 clear 一样）</td></tr>
+            <tr><td><strong>Ctrl+A</strong></td><td>光标跳到行首</td></tr>
+            <tr><td><strong>Ctrl+E</strong></td><td>光标跳到行尾</td></tr>
+            <tr><td><strong>Ctrl+U</strong></td><td>删除光标前的所有内容</td></tr>
+            <tr><td><strong>Ctrl+W</strong></td><td>删除光标前的一个单词</td></tr>
+            <tr><td><strong>Ctrl+R</strong></td><td>搜索历史命令（输入关键词搜之前用过的命令）</td></tr>
+            <tr><td><strong>!!</strong></td><td>重复上一条命令</td></tr>
+            <tr><td><strong>!sudo</strong></td><td>重复最近一条以 sudo 开头的命令</td></tr>
+        </table>
+
+        <div class="tip">
+            <strong>💡 这节怎么用？</strong>不需要背！以后在终端里遇到不会的操作，来这节当字典查就行。<br>
+            <strong>最常用的 5 个命令：</strong><code>cd</code>、<code>ls</code>、<code>pwd</code>、<code>sudo apt install</code>、<code>nano</code> —— 把这 5 个记住就够用了。
+        </div>
+    </div>
+
+    <!-- 第27章 -->
+    <div class="section" id="s27">
+        <h2>27. 安装代理 App（科学上网）</h2>
+        <p>树莓派上装代理，可以让你在终端里流畅地 <code>git clone</code>、<code>wget</code>、<code>apt update</code> 访问外网资源。下面教你装三种最常见的方案。</p>
+
+        <div class="tip">
+            <strong>💡 提醒：</strong>代理需要你自己有节点（订阅链接），本教程不提供节点，只教怎么装客户端。
+        </div>
+
+        <h3>27.1 方案一：安装 v2rayA（网页管理，最推荐新手）</h3>
+        <p><strong>v2rayA</strong> 是一个网页版代理客户端，装好后浏览器访问就能管理，支持 v2ray/trojan/ss 等协议。</p>
+
+        <div class="step-box"><span class="step-num">1</span> 安装 v2ray 内核 + v2rayA</div>
+        <pre><span class="comment"># 安装 v2ray 内核</span>
+<span class="cmd">sudo apt install curl -y</span>
+<span class="cmd">bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh)</span>
+
+<span class="comment"># 安装 v2rayA</span>
+<span class="cmd">wget https://github.com/v2rayA/v2rayA/releases/latest/download/v2raya_linux_arm64_1.5.9.5.deb</span>
+<span class="cmd">sudo dpkg -i v2raya_linux_arm64_*.deb</span>
+<span class="cmd">sudo apt install -f -y</span></pre>
+        <div class="step-box"><span class="step-num">2</span> 启动 v2rayA</div>
+        <pre><span class="cmd">sudo systemctl enable v2raya --now</span></pre>
+        <div class="step-box"><span class="step-num">3</span> 打开浏览器，访问 <code>http://树莓派IP:2017</code></div>
+        <ul>
+            <li>创建管理员账号</li>
+            <li>点 <strong>导入</strong> → 粘贴你的订阅链接或 vmess 链接</li>
+            <li>选一个节点 → 点 <strong>连接</strong></li>
+            <li>代理模式选 <strong>大陆白名单</strong>（只代理国外网站，国内网站直连）</li>
+        </ul>
+
+        <div class="tip">
+            <strong>💡 v2rayA 最方便的地方：</strong>设置好之后终端里 <code>git clone</code>、<code>pip install</code>、<code>apt update</code> 都会自动走代理，不需要额外配置！
+        </div>
+
+        <h3>27.2 方案二：安装 Clash for Windows（命令行版）</h3>
+        <p>如果你用的是 Clash 订阅链接，可以用这个轻量版：</p>
+        <pre><span class="comment"># 下载 Clash（ARM 版）</span>
+<span class="cmd">wget https://github.com/Dreamacro/clash/releases/latest/download/clash-linux-arm64-latest.gz</span>
+<span class="cmd">gunzip clash-linux-arm64-latest.gz</span>
+<span class="cmd">chmod +x clash-linux-arm64-latest</span>
+<span class="cmd">sudo mv clash-linux-arm64-latest /usr/local/bin/clash</span>
+
+<span class="comment"># 创建配置文件夹</span>
+<span class="cmd">mkdir -p ~/.config/clash</span>
+<span class="cmd">cd ~/.config/clash</span></pre>
+        <p>把你的 <code>config.yaml</code>（订阅文件）放到 <code>~/.config/clash/</code> 里，然后：</p>
+        <pre><span class="cmd">clash</span>    <span class="comment"># 启动 Clash（默认监听 7890 端口）</span></pre>
+        <p>然后在终端里设置环境变量就能用了：</p>
+        <pre><span class="cmd">export http_proxy=http://127.0.0.1:7890</span>
+<span class="cmd">export https_proxy=http://127.0.0.1:7890</span></pre>
+
+        <h3>27.3 方案三：用 Pi-Apps 装（懒人专用）</h3>
+        <p>打开 Pi-Apps → Internet 分类 → 搜 <strong>Proxy</strong> 或 <strong>V2ray</strong>，有集成的安装选项。</p>
+
+        <h3>27.4 让终端总是走代理（不用每次都输 export）</h3>
+        <p>把这两行加到 <code>~/.bashrc</code> 文件里，每次打开终端就自动设置好代理：</p>
+        <pre><span class="cmd">echo 'export http_proxy=http://127.0.0.1:2017' >> ~/.bashrc</span>
+<span class="cmd">echo 'export https_proxy=http://127.0.0.1:2017' >> ~/.bashrc</span>
+<span class="cmd">source ~/.bashrc</span>    <span class="comment"># 立即生效</span></pre>
+        <div class="warning">
+            <strong>⚠️ 端口号要对上：</strong>上面写的是 <code>2017</code>（v2rayA 的端口），如果你用的是 Clash 就改成 <code>7890</code>。
+        </div>
+
+        <h3>27.5 测试代理通不通</h3>
+        <pre><span class="cmd">curl -I https://www.google.com</span>     <span class="comment"># 能返回内容说明代理通了</span>
+<span class="cmd">curl ip.sb</span>                          <span class="comment"># 显示你的出口 IP</span></pre>
+
+        <h3>27.6 GitHub 加速链接转换器 🚀</h3>
+        <p>输入一个 GitHub 链接（<code>git clone</code> 或 <code>wget</code> 或 <code>https://github.com/xxx</code> 都行），自动生成所有可用镜像站的加速命令，点击按钮直接复制。</p>
+
+        <div class="converter-box" style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:25px;margin:15px 0;transition:background .3s,border-color .3s;">
+            <style>
+            .converter-box input, .converter-box textarea {
+                width:100%;padding:12px 16px;border:2px solid #ddd;border-radius:8px;
+                font-size:0.95em;font-family:"Courier New",monospace;
+                background:var(--card-bg);color:var(--text);transition:border-color .3s;
+                box-sizing:border-box;
+            }
+            body.dark .converter-box input, body.dark .converter-box textarea { border-color:#444; }
+            .converter-box input:focus, .converter-box textarea:focus { border-color:#c43a31;outline:none; }
+            .converter-box .help-text { font-size:0.85em;color:#999;margin:6px 0 14px; }
+            .converter-box .result-wrap { margin-top:16px; }
+            .converter-box .result-item {
+                display:flex;align-items:center;gap:10px;margin:8px 0;
+                background:var(--code-bg);padding:10px 14px;border-radius:8px;
+                font-size:0.85em;font-family:"Courier New",monospace;word-break:break-all;
+                transition:background .3s;
+            }
+            .converter-box .result-item .label {
+                flex-shrink:0;font-weight:bold;font-family:inherit;
+                min-width:80px;font-size:0.9em;
+            }
+            .converter-box .result-item .label.green { color:#4caf50; }
+            .converter-box .result-item .label.blue { color:#2196F3; }
+            .converter-box .result-item .label.orange { color:#ff9800; }
+            .converter-box .result-item .label.purple { color:#9c27b0; }
+            .converter-box .result-item .label.teal { color:#009688; }
+            .converter-box .copy-mini {
+                flex-shrink:0;background:rgba(0,0,0,.08);border:none;border-radius:5px;
+                padding:4px 10px;cursor:pointer;font-size:0.85em;font-family:inherit;
+                transition:background .2s;
+            }
+            body.dark .converter-box .copy-mini { background:rgba(255,255,255,.1); color:#ccc; }
+            .converter-box .copy-mini:hover { background:#c43a31;color:#fff; }
+            .converter-box .copy-mini.copied { background:#4caf50;color:#fff; }
+            .converter-box .note { font-size:0.82em;color:#999;margin-top:12px; }
+            </style>
+
+            <input type="text" id="ghInput" placeholder="粘贴 GitHub 链接…  例如：https://github.com/Botspot/pi-apps.git 或 git clone https://github.com/xxx/xxx.git" oninput="convertGithubLink()">
+            <div class="help-text">💡 支持完整的 git clone 命令、wget 链接、或者纯 https://github.com/xxx 链接</div>
+
+            <div class="result-wrap" id="ghResults" style="display:none;">
+                <div class="result-item"><span class="label green">◉ 原始</span><span id="ghOriginal" style="flex:1;"></span><button class="copy-mini" onclick="copyText(this,'ghOriginal')">📋 复制</button></div>
+                <div class="result-item"><span class="label blue">◉ ghproxy.net</span><span id="ghGhproxy" style="flex:1;"></span><button class="copy-mini" onclick="copyText(this,'ghGhproxy')">📋 复制</button></div>
+                <div class="result-item"><span class="label orange">◉ ghproxy.com</span><span id="ghGhproxyCom" style="flex:1;"></span><button class="copy-mini" onclick="copyText(this,'ghGhproxyCom')">📋 复制</button></div>
+                <div class="result-item"><span class="label purple">◉ gitclone.com</span><span id="ghGitclone" style="flex:1;"></span><button class="copy-mini" onclick="copyText(this,'ghGitclone')">📋 复制</button></div>
+                <div class="result-item"><span class="label teal">◉ gh.ddlc.top</span><span id="ghDdlc" style="flex:1;"></span><button class="copy-mini" onclick="copyText(this,'ghDdlc')">📋 复制</button></div>
+                <div class="note">⚠️ 镜像站偶尔会挂，如果某个不能用就换一个试试。<a href="https://gh-proxy.com/" target="_blank" style="color:#c43a31;font-weight:bold;text-decoration:none;">🔗 点我跳转到备用网址 gh-proxy.com</a></div>
+            </div>
+        </div>
+
+        <div class="tip">
+            <strong>💡 懒得每次粘贴？</strong> 也可以用全局替换，以后 clone 不用改链接：
+            <code style="display:inline-block;margin-top:6px;">git config --global url."https://ghproxy.net/".insteadOf "https://github.com/"</code>
+        </div>
+    </div>
+
+    <script>
+    function extractGithubUrl(input) {
+        // 从 git clone https://... 或 wget https://... 或裸 https://... 中提取 github.com 开头的链接
+        let m = input.match(/https?:\/\/github\.com\/[^\s"']+/);
+        if (m) return m[0].replace(/\/+$/,'');
+        m = input.match(/https?:\/\/gitclone\.com\/github\.com\/[^\s"']+/);
+        if (m) return 'https://' + m[0].split('/').slice(3).join('/');
+        // 可能输入的是镜像站链接，反向提取
+        for (let prefix of ['https://ghproxy.net/https://','https://ghproxy.com/https://','https://gitclone.com/github.com/','https://gh.ddlc.top/https://']) {
+            if (input.includes(prefix)) {
+                return 'https://' + input.split(prefix)[1].replace(/\/+$/,'');
+            }
+        }
+        return input.trim();
+    }
+
+    function convertGithubLink() {
+        let raw = document.getElementById('ghInput').value.trim();
+        let results = document.getElementById('ghResults');
+        if (!raw) { results.style.display='none'; return; }
+
+        let url = extractGithubUrl(raw);
+
+        // 验证是否是有效链接
+        if (!url.startsWith('https://github.com/')) {
+            // 尝试显示原始内容
+            document.getElementById('ghOriginal').textContent = raw;
+            document.getElementById('ghGhproxy').textContent = 'https://ghproxy.net/' + raw;
+            document.getElementById('ghGhproxyCom').textContent = 'https://ghproxy.com/' + raw;
+            document.getElementById('ghGitclone').textContent = 'https://gitclone.com/github.com/' + raw.replace(/^https?:\/\//,'');
+            document.getElementById('ghDdlc').textContent = 'https://gh.ddlc.top/' + raw;
+            results.style.display='block';
+            return;
+        }
+
+        let path = url.replace('https://github.com/','');
+        document.getElementById('ghOriginal').textContent = url;
+        document.getElementById('ghGhproxy').textContent = 'https://ghproxy.net/https://github.com/' + path;
+        document.getElementById('ghGhproxyCom').textContent = 'https://ghproxy.com/https://github.com/' + path;
+        document.getElementById('ghGitclone').textContent = 'git clone https://gitclone.com/github.com/' + path;
+        document.getElementById('ghDdlc').textContent = 'https://gh.ddlc.top/https://github.com/' + path;
+        results.style.display='block';
+    }
+
+    function copyText(btn, spanId) {
+        let text = document.getElementById(spanId).textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            btn.textContent = '✅ 已复制';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = '📋 复制'; btn.classList.remove('copied'); }, 2000);
+        }).catch(() => {});
+    }
+
+    // 回车触发
+    document.addEventListener('DOMContentLoaded', () => {
+        let inp = document.getElementById('ghInput');
+        if (inp) inp.addEventListener('keydown', e => { if (e.key==='Enter') convertGithubLink(); });
+    });
+    </script>
+
+    <!-- 结语 -->
+    <div class="section" style="background: linear-gradient(135deg, #fff5f5, #fff);">
+        <h2>🎉 恭喜你！</h2>
+        <p>你已经学完了树莓派 OS 的完整教程！从基础操作到进阶玩法全部覆盖。</p>
+        <p style="margin-top:15px; text-align:center; color:#c43a31; font-weight:bold;">加油，你已经在玩世界上最酷的迷你电脑了！🚀</p>
+    </div>
+
+    <div class="footer">
+        树莓派 OS 使用教程大全 · 由 Eason 精心整理 · 2026
+    </div>
+
+</main>
+
+<script>
+function toggleDark() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('pi-tutorial-dark', document.body.classList.contains('dark'));
+}
+
+// 拷贝代码按钮
+document.addEventListener('DOMContentLoaded', () => {
+    // 恢复深色模式
+    if (localStorage.getItem('pi-tutorial-dark') === 'true') {
+        document.body.classList.add('dark');
+    }
+
+    // 给所有 pre 加拷贝按钮
+    document.querySelectorAll('pre').forEach(pre => {
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = '📋 复制';
+        btn.onclick = async () => {
+            // 只复制命令内容，排除拷贝按钮本身的文字
+            const clone = pre.cloneNode(true);
+            const btnInClone = clone.querySelector('.copy-btn');
+            if (btnInClone) btnInClone.remove();
+            const text = clone.textContent
+                .replace(/^#.*$/gm, '')          // 去掉注释行
+                .replace(/\n{2,}/g, '\n')         // 多个空行合并
+                .trim();
+            try {
+                await navigator.clipboard.writeText(text);
+                btn.textContent = '✅ 已复制';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '📋 复制';
+                    btn.classList.remove('copied');
+                }, 2000);
+            } catch { /* fallback */ }
+        };
+        pre.appendChild(btn);
+    });
+});
+</script>
+
+</body>
+</html>
